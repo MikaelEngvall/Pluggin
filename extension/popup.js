@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Format seconds to a readable string (e.g. "1h 23m" or "45s")
   function formatTime(totalSeconds) {
+    if (totalSeconds < 60) return `${totalSeconds}s`;
+    
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
@@ -13,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let timeString = [];
     if (hours > 0) timeString.push(`${hours}h`);
     if (minutes > 0) timeString.push(`${minutes}m`);
-    if (hours === 0 && minutes === 0) timeString.push(`${seconds}s`);
+    if (seconds > 0 && hours === 0) timeString.push(`${seconds}s`);
     
     return timeString.join(' ');
   }
