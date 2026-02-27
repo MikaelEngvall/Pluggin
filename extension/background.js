@@ -59,6 +59,9 @@ function handleTabChange(tabId, tabUrl) {
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
+    if (chrome.runtime.lastError) {
+      return;
+    }
     if (tab && tab.url) {
       handleTabChange(tab.id, tab.url);
     }
