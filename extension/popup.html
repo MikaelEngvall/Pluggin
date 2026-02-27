@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Time Tracker Stats</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Din Tidsstatistik</h1>
+      <p>Top 20 besökta domäner</p>
+    </header>
+    
+    <div id="loading" class="loading">Hämtar data...</div>
+    <div id="error" class="error hidden">Kunde inte hämta data. Är backend igång? (php -S localhost:8000 i backend-mappen)</div>
+    
+    <ul id="statsList" class="hidden">
+      <!-- List items injected via JS -->
+    </ul>
+    
+    <footer>
+      <span>Drivs av PostgreSQL + PHP</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

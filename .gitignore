@@ -1,0 +1,10 @@
+# Ignore environment variables and sensitive configuration files
+ENVIRONMENT_VARIABLES.md
+
+# Ignore database credentials if placed in a separate file
+backend/config.php
+# .env
+
+# OS generated files
+.DS_Store
+Thumbs.db
