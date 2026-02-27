@@ -50,7 +50,7 @@ När du nu surfar runt så skickar Google Chrome data till din server i bakgrund
 
 Klicka på tilläggs-ikonen ("pusselbiten") och därefter på "**Time Tracker - PHP Backend**" uppe i verktygsfältet för att i realtid se vilka sidor du ödslar mest tid på!
 
-![Time Tracker Popup](popup_screenshot.png)
+![Time Tracker Popup](popup.png)
 
 ### 5. Hantera Data (Radera & Nollställ)
 Du har full kontroll över din insamlade data:
