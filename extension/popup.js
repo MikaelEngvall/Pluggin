@@ -3,6 +3,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const loadingEl = document.getElementById('loading');
   const errorEl = document.getElementById('error');
   const statsList = document.getElementById('statsList');
+  const resetBtn = document.getElementById('resetApp');
+
+  // Send delete request
+  function deleteData(payload) {
+    return fetch('http://localhost:8000/delete.php', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(res => {
+       if(!res.ok) throw new Error("Delete failed");
+       
+       // Inform background script to reset active tracking if we delete
+       chrome.runtime.sendMessage({ action: "resetTrackingData", domain: payload.domain || "ALL" });
+       
+       // Reload popup data
+       location.reload();
+    }).catch(err => {
+      console.error(err);
+      alert("Något gick fel vid raderingen.");
+    });
+  }
 
   // Format seconds to a readable string (e.g. "1h 23m" or "45s")
   function formatTime(totalSeconds) {
@@ -32,8 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
   ])
     .then(([result, liveData]) => {
       loadingEl.classList.add('hidden');
-      if (result.data && result.data.length > 0) {
-        statsList.classList.remove('hidden');
+      if (result.data && result.data.length > 0 || liveData) {
+        if (result.data.length > 0 || liveData) {
+            statsList.classList.remove('hidden');
+            resetBtn.classList.remove('hidden');
+        }
         
         let domainsData = [...result.data];
 
@@ -62,24 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
           timeSpan.className = 'time';
           timeSpan.textContent = formatTime(parseInt(item.total_seconds, 10));
           
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.innerHTML = '&times;';
+          delBtn.title = `Radera data för ${item.domain}`;
+          delBtn.onclick = () => {
+             if(confirm(`Vill du verkligen radera all statistisk för ${item.domain}?`)) {
+                 deleteData({ domain: item.domain });
+             }
+          };
+          
           li.appendChild(domainSpan);
           li.appendChild(timeSpan);
+          li.appendChild(delBtn);
           statsList.appendChild(li);
         });
-      } else if (liveData) {
-         // Show only live data if backend is empty
-         statsList.classList.remove('hidden');
-         const li = document.createElement('li');
-         const domainSpan = document.createElement('span');
-         domainSpan.className = 'domain';
-         domainSpan.textContent = liveData.domain;
-         const timeSpan = document.createElement('span');
-         timeSpan.className = 'time';
-         timeSpan.textContent = formatTime(liveData.duration_seconds);
-         
-         li.appendChild(domainSpan);
-         li.appendChild(timeSpan);
-         statsList.appendChild(li);
       } else {
         errorEl.textContent = "Ingen data samlad ännu. Surfa runt lite!";
         errorEl.classList.remove('hidden');
@@ -90,4 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
       loadingEl.classList.add('hidden');
       errorEl.classList.remove('hidden');
     });
+
+  resetBtn.addEventListener('click', () => {
+      if(confirm('Är du helt säker på att du vill radera ALL din insamlade surf-data?')) {
+          deleteData({ clear_all: true });
+      }
+  });
 });

@@ -30,11 +30,11 @@ För att PHP-filerna ska fungera behöver du en server. Vi använder PHP:s inbyg
 
 1. Öppna en terminal och navigera till backend-mappen:
    ```bash
-   cd C:\Users\mikae\Code\Pluggin\backend
+   cd /sökväg/till/projekt/backend
    ```
-2. Starta servern (anpassa sökvägen till din `php.exe` om du kör t.ex XAMPP):
+2. Starta servern (anpassa kommandot om du t.ex. använder XAMPP:s php.exe):
    ```bash
-   C:\Users\mikae\Desktop\xampp\php\php.exe -S localhost:8000
+   php -S localhost:8000
    ```
 *Tips: Får du felmeddelandet "could not find driver", säkerställ att du har aktiverat `extension=pdo_pgsql` i din `php.ini`.*
 
@@ -42,10 +42,17 @@ För att PHP-filerna ska fungera behöver du en server. Vi använder PHP:s inbyg
 1. Öppna Google Chrome och gå till `chrome://extensions/`.
 2. Aktivera **Utvecklarläge** (Developer mode) högst uppe till höger.
 3. Klicka på **Läs in opackat tillägg** (Load unpacked).
-4. Välj mappen `C:\Users\mikae\Code\Pluggin\extension`.
+4. Välj mappen `/sökväg/till/projekt/extension`.
 
 ### 4. Användning
 Allt är klart!
 När du nu surfar runt så skickar Google Chrome data till din server i bakgrunden varje gång du byter aktiv flik. 
 
 Klicka på tilläggs-ikonen ("pusselbiten") och därefter på "**Time Tracker - PHP Backend**" uppe i verktygsfältet för att i realtid se vilka sidor du ödslar mest tid på!
+
+![Time Tracker Popup](popup_screenshot.png)
+
+### 5. Hantera Data (Radera & Nollställ)
+Du har full kontroll över din insamlade data:
+- **Radera enskilda sidor:** Klicka på det röda krysset (`×`) bredvid en domän i listan för att radera all tid för just den webbplatsen.
+- **Nollställ allt:** Längst ner i popup-fönstret hittar du knappen "Nollställ Allt" som raderar all din statistik permanent från både skärmen och webbdatabasen.

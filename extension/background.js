@@ -69,6 +69,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       sendResponse(null);
     }
+  } else if (request.action === "resetTrackingData") {
+     if (request.domain === "ALL" || request.domain === activeDomain) {
+        // Reset the start timer so the zombie time doesn't get saved again
+        startTime = Date.now();
+     }
   }
 });
 
