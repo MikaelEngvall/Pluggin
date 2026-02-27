@@ -45,6 +45,7 @@ För att PHP-filerna ska fungera behöver du en server. Vi använder PHP:s inbyg
 4. Välj mappen `/sökväg/till/projekt/extension`.
 
 ### 4. Användning
+
 Allt är klart!
 När du nu surfar runt så skickar Google Chrome data till din server i bakgrunden varje gång du byter aktiv flik. 
 
@@ -53,6 +54,8 @@ Klicka på tilläggs-ikonen ("pusselbiten") och därefter på "**Time Tracker - 
 ![Time Tracker Popup](popup.png)
 
 ### 5. Hantera Data (Radera & Nollställ)
+
 Du har full kontroll över din insamlade data:
-- **Radera enskilda sidor:** Klicka på det röda krysset (`×`) bredvid en domän i listan för att radera all tid för just den webbplatsen.
-- **Nollställ allt:** Längst ner i popup-fönstret hittar du knappen "Nollställ Allt" som raderar all din statistik permanent från både skärmen och webbdatabasen.
+
+* **Radera enskilda sidor:** Klicka på det röda krysset (`×`) bredvid en domän i listan för att radera all tid för just den webbplatsen.
+* **Nollställ allt:** Längst ner i popup-fönstret hittar du knappen "Nollställ Allt" som raderar all din statistik permanent från både skärmen och webbdatabasen.
