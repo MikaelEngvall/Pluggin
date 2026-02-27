@@ -57,6 +57,21 @@ function handleTabChange(tabId, tabUrl) {
   }
 }
 
+// Listener to return current tracked time to popup for live updating
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getCurrentTrackingData") {
+    if (activeDomain && startTime) {
+      const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
+      sendResponse({
+        domain: activeDomain,
+        duration_seconds: elapsedSeconds
+      });
+    } else {
+      sendResponse(null);
+    }
+  }
+});
+
 chrome.tabs.onActivated.addListener((activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
     if (chrome.runtime.lastError) {

@@ -20,20 +20,37 @@ document.addEventListener('DOMContentLoaded', () => {
     return timeString.join(' ');
   }
 
-  // Fetch data from PHP backend
-  fetch('http://localhost:8000/stats.php')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
+  // Fetch data from PHP backend and live stats from background script
+  Promise.all([
+    fetch('http://localhost:8000/stats.php').then(res => {
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    }),
+    new Promise(resolve => {
+      chrome.runtime.sendMessage({ action: "getCurrentTrackingData" }, response => resolve(response));
     })
-    .then(result => {
+  ])
+    .then(([result, liveData]) => {
       loadingEl.classList.add('hidden');
       if (result.data && result.data.length > 0) {
         statsList.classList.remove('hidden');
         
-        result.data.forEach(item => {
+        let domainsData = [...result.data];
+
+        // Combine live data with backend data
+        if (liveData) {
+          const existingDomain = domainsData.find(d => d.domain === liveData.domain);
+          if (existingDomain) {
+            existingDomain.total_seconds = parseInt(existingDomain.total_seconds, 10) + liveData.duration_seconds;
+          } else {
+            domainsData.push({ domain: liveData.domain, total_seconds: liveData.duration_seconds });
+          }
+          
+          // Re-sort array
+          domainsData.sort((a, b) => parseInt(b.total_seconds, 10) - parseInt(a.total_seconds, 10));
+        }
+        
+        domainsData.forEach(item => {
           const li = document.createElement('li');
           
           const domainSpan = document.createElement('span');
@@ -49,6 +66,20 @@ document.addEventListener('DOMContentLoaded', () => {
           li.appendChild(timeSpan);
           statsList.appendChild(li);
         });
+      } else if (liveData) {
+         // Show only live data if backend is empty
+         statsList.classList.remove('hidden');
+         const li = document.createElement('li');
+         const domainSpan = document.createElement('span');
+         domainSpan.className = 'domain';
+         domainSpan.textContent = liveData.domain;
+         const timeSpan = document.createElement('span');
+         timeSpan.className = 'time';
+         timeSpan.textContent = formatTime(liveData.duration_seconds);
+         
+         li.appendChild(domainSpan);
+         li.appendChild(timeSpan);
+         statsList.appendChild(li);
       } else {
         errorEl.textContent = "Ingen data samlad ännu. Surfa runt lite!";
         errorEl.classList.remove('hidden');
