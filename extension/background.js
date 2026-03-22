@@ -2,6 +2,18 @@ let activeTabId = null;
 let activeDomain = null;
 let startTime = null;
 
+// Persist tracking state to chrome.storage.session so it survives
+// service worker restarts (Chrome pauses SW after ~30s of inactivity)
+async function saveTrackingState() {
+  await chrome.storage.session.set({ activeDomain, startTime });
+}
+
+async function loadTrackingState() {
+  const data = await chrome.storage.session.get(["activeDomain", "startTime"]);
+  activeDomain = data.activeDomain || null;
+  startTime = data.startTime || null;
+}
+
 function getDomain(url) {
   try {
     const urlObj = new URL(url);
@@ -14,32 +26,22 @@ function getDomain(url) {
 function stopTrackingAndSend() {
   if (activeDomain && startTime) {
     const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
-
-    // Only track if spent more than 1 second
     if (elapsedSeconds > 1) {
-      console.log(
-        `Sending data: ${activeDomain} for ${elapsedSeconds} seconds`,
-      );
-
+      console.log(`Sending data: ${activeDomain} for ${elapsedSeconds} seconds`);
       fetch("http://localhost:8000/track.php", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          domain: activeDomain,
-          duration_seconds: elapsedSeconds,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: activeDomain, duration_seconds: elapsedSeconds }),
       }).catch((err) => console.error("Error tracking time:", err));
     }
   }
 }
 
-function handleTabChange(tabId, tabUrl) {
+async function handleTabChange(tabId, tabUrl) {
+  await loadTrackingState();
   const domain = getDomain(tabUrl);
 
   // Ignore chrome:// and chrome-extension:// URLs (e.g. popup, extensions page)
-  // so that opening the popup doesn't reset the active domain tracking
   if (
     !domain ||
     domain.startsWith("chrome://") ||
@@ -49,10 +51,10 @@ function handleTabChange(tabId, tabUrl) {
   }
 
   if (domain !== activeDomain) {
-    // We switched to a real domain
     stopTrackingAndSend();
     activeDomain = domain;
     startTime = Date.now();
+    await saveTrackingState();
   }
 }
 
@@ -125,6 +127,7 @@ chrome.alarms.onAlarm.addListener(handleAlarm);
 // --- Startup logic ---
 
 async function initTimers() {
+  await loadTrackingState(); // restore tracking state after SW restart
   const allItems = await chrome.storage.local.get(null);
   const timerEntries = Object.entries(allItems).filter(([key]) =>
     key.startsWith("tab-timer::")
@@ -167,20 +170,24 @@ if (typeof module !== "undefined" && module.exports) {
 // Listener to return current tracked time to popup for live updating
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getCurrentTrackingData") {
-    if (activeDomain && startTime) {
-      const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
-      sendResponse({
-        domain: activeDomain,
-        duration_seconds: elapsedSeconds
-      });
-    } else {
-      sendResponse(null);
-    }
+    loadTrackingState().then(() => {
+      if (activeDomain && startTime) {
+        const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
+        sendResponse({ domain: activeDomain, duration_seconds: elapsedSeconds });
+      } else {
+        sendResponse(null);
+      }
+    });
+    return true; // async
   } else if (request.action === "resetTrackingData") {
-     if (request.domain === "ALL" || request.domain === activeDomain) {
-        // Reset the start timer so the zombie time doesn't get saved again
+    loadTrackingState().then(() => {
+      if (request.domain === "ALL" || request.domain === activeDomain) {
         startTime = Date.now();
-     }
+        saveTrackingState();
+      }
+      sendResponse({ ok: true });
+    });
+    return true;
   } else if (request.action === "createTimer") {
     createTimer(request.domain, request.durationSeconds).then(sendResponse);
     return true;
