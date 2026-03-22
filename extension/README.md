@@ -51,11 +51,22 @@ Se till att databasen är konfigurerad och att `track.php`, `stats.php` och `del
 ## Projektstruktur
 
 ```
+extension/
 ├── manifest.json     # Chrome extension manifest (v3)
 ├── background.js     # Service worker – spårar aktiv flik och skickar data
 ├── popup.html        # Popup-gränssnitt
 ├── popup.js          # Hämtar och renderar statistik
-└── popup.css         # Styling för popup
-```
+├── popup.css         # Styling för popup
+├── icon*.png         # Tilläggsikoner (16, 32, 48, 128px)
+└── tests/
+    ├── background.test.js
+    └── popup.test.js
 
-> PHP-backend och databasschema hanteras separat och ingår inte i det här repot.
+backend/
+├── config.php        # Databasuppgifter
+├── track.php         # Tar emot och sparar tid
+├── stats.php         # Returnerar statistik
+└── delete.php        # Raderar data
+
+schema.sql            # PostgreSQL-schema för databasen
+```
