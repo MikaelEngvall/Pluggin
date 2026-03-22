@@ -9,6 +9,7 @@ Ett Chrome-tillägg som automatiskt loggar hur mycket tid du spenderar på olika
     *   **chrome.alarms**: Schemalägger timers som överlever omstarter av tillägget.
     *   **chrome.notifications**: Visar en systemnotifikation när en timer löper ut.
     *   **HTML & CSS**: För att måla upp tilläggets användargränssnitt.
+    *   **Jest + fast-check**: Automatiserade tester inklusive property-based testing.
 *   **Backend (API)**
     *   **PHP (v8.x)**: Binder ihop databasen med Chromes förfrågningar och returnerar formaterad JSON-data (`track.php` och `stats.php`).
 *   **Databas**
@@ -66,7 +67,17 @@ Du kan sätta en nedräkningstimer för den domän du för tillfället besöker:
 * **En timer per domän:** Det kan bara finnas en aktiv timer per domän. Sätter du en ny timer för samma domän ersätts den gamla.
 * **Överlever omstart:** Timers sparas i `chrome.storage.local` och återställs automatiskt om tillägget eller webbläsaren startas om.
 
-### 5. Hantera Data (Radera & Nollställ)
+### 5. Kör tester
+
+Projektet har automatiserade tester med Jest och fast-check (property-based testing).
+
+```bash
+npx jest --forceExit
+```
+
+---
+
+### 6. Hantera Data (Radera & Nollställ)
 
 Du har full kontroll över din insamlade data:
 
