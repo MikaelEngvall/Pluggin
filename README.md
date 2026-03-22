@@ -6,6 +6,8 @@ Ett Chrome-tillägg som automatiskt loggar hur mycket tid du spenderar på olika
 
 *   **Frontend (Chrome-tillägget)**
     *   **JavaScript (Manifest V3)**: Körs i bakgrunden (Service Worker) för att lyssna på flik-byten. Hanterar också logiken i popup-gränssnittet.
+    *   **chrome.alarms**: Schemalägger timers som överlever omstarter av tillägget.
+    *   **chrome.notifications**: Visar en systemnotifikation när en timer löper ut.
     *   **HTML & CSS**: För att måla upp tilläggets användargränssnitt.
 *   **Backend (API)**
     *   **PHP (v8.x)**: Binder ihop databasen med Chromes förfrågningar och returnerar formaterad JSON-data (`track.php` och `stats.php`).
@@ -52,6 +54,17 @@ När du nu surfar runt så skickar Google Chrome data till din server i bakgrund
 Klicka på tilläggs-ikonen ("pusselbiten") och därefter på "**Time Tracker - PHP Backend**" uppe i verktygsfältet för att i realtid se vilka sidor du ödslar mest tid på!
 
 ![Time Tracker Popup](popup.png)
+
+#### Tab Timers
+
+Du kan sätta en nedräkningstimer för den domän du för tillfället besöker:
+
+* **Starta en timer:** Ange antal minuter (1–1440) i fältet längst ner i popup:en och klicka **Starta timer**. Timern kopplas till den aktiva flikens domän.
+* **Notifikation:** När timern löper ut visas en Chrome-notifikation som talar om vilken domän det gäller.
+* **Se aktiva timers:** Alla pågående timers listas i popup:en med domännamn och återstående tid, uppdaterad i realtid.
+* **Avbryt en timer:** Klicka på **Avbryt** bredvid en timer i listan för att stoppa den i förtid.
+* **En timer per domän:** Det kan bara finnas en aktiv timer per domän. Sätter du en ny timer för samma domän ersätts den gamla.
+* **Överlever omstart:** Timers sparas i `chrome.storage.local` och återställs automatiskt om tillägget eller webbläsaren startas om.
 
 ### 5. Hantera Data (Radera & Nollställ)
 

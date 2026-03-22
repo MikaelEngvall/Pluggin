@@ -1,0 +1,20 @@
+{
+  "name": "tab-timers",
+  "version": "1.0.0",
+  "description": "Tab Timers Chrome Extension",
+  "scripts": {
+    "test": "jest --run",
+    "test:watch": "jest"
+  },
+  "devDependencies": {
+    "fast-check": "^3.15.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  }
+}

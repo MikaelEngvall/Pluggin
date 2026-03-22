@@ -26,6 +26,17 @@
     </footer>
   </div>
 
+  <section id="timers-section">
+    <h2>Timers</h2>
+    <div id="timer-form">
+      <input type="number" id="timer-minutes" min="1" max="1440" placeholder="Minuter">
+      <button id="timer-start">Starta timer</button>
+      <div id="timer-error" class="error hidden"></div>
+    </div>
+    <ul id="timer-list"></ul>
+    <p id="no-timers" class="hidden">Inga aktiva timers.</p>
+  </section>
+
   <script src="popup.js"></script>
 </body>
 </html>
