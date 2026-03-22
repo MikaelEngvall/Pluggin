@@ -83,3 +83,28 @@ Du har full kontroll över din insamlade data:
 
 * **Radera enskilda sidor:** Klicka på det röda krysset (`×`) bredvid en domän i listan för att radera all tid för just den webbplatsen.
 * **Nollställ allt:** Längst ner i popup-fönstret hittar du knappen "Nollställ Allt" som raderar all din statistik permanent från både skärmen och webbdatabasen.
+
+---
+
+## 📁 Projektstruktur
+
+```
+├── extension/
+│   ├── manifest.json       # Chrome extension manifest (v3)
+│   ├── background.js       # Service worker – spårar aktiv flik och skickar data
+│   ├── popup.html          # Popup-gränssnitt
+│   ├── popup.js            # Hämtar och renderar statistik + timer-UI
+│   ├── popup.css           # Styling för popup
+│   ├── icon*.png           # Tilläggsikoner (16, 32, 48, 128px)
+│   └── tests/
+│       ├── background.test.js
+│       └── popup.test.js
+├── backend/
+│   ├── config.php          # Databasuppgifter
+│   ├── track.php           # Tar emot och sparar tid
+│   ├── stats.php           # Returnerar statistik (top 20)
+│   └── delete.php          # Raderar data
+├── schema.sql              # PostgreSQL-schema för databasen
+├── package.json            # Jest + fast-check beroenden
+└── README.md
+```
