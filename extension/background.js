@@ -2,16 +2,17 @@ let activeTabId = null;
 let activeDomain = null;
 let startTime = null;
 
-// Persist tracking state to chrome.storage.session so it survives
-// service worker restarts (Chrome pauses SW after ~30s of inactivity)
+// Persist tracking state to chrome.storage.local so it survives
+// service worker restarts, sleep/wake cycles, and browser restarts.
+// startTime is a Unix timestamp (ms) – elapsed = Date.now() - startTime always works.
 async function saveTrackingState() {
-  await chrome.storage.session.set({ activeDomain, startTime });
+  await chrome.storage.local.set({ _activeDomain: activeDomain, _startTime: startTime });
 }
 
 async function loadTrackingState() {
-  const data = await chrome.storage.session.get(["activeDomain", "startTime"]);
-  activeDomain = data.activeDomain || null;
-  startTime = data.startTime || null;
+  const data = await chrome.storage.local.get(["_activeDomain", "_startTime"]);
+  activeDomain = data._activeDomain || null;
+  startTime = data._startTime || null;
 }
 
 function getDomain(url) {
@@ -127,7 +128,23 @@ chrome.alarms.onAlarm.addListener(handleAlarm);
 // --- Startup logic ---
 
 async function initTimers() {
-  await loadTrackingState(); // restore tracking state after SW restart
+  await loadTrackingState(); // restore tracking state after SW restart / wake
+
+  // If we have a stale startTime from before sleep/restart, send the accumulated
+  // time to backend now so it's not lost, then reset startTime to now.
+  if (activeDomain && startTime) {
+    const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
+    if (elapsedSeconds > 1) {
+      fetch("http://localhost:8000/track.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: activeDomain, duration_seconds: elapsedSeconds }),
+      }).catch((err) => console.error("Error flushing stale tracking on init:", err));
+    }
+    // Reset startTime to now so we don't double-count
+    startTime = Date.now();
+    await saveTrackingState();
+  }
   const allItems = await chrome.storage.local.get(null);
   const timerEntries = Object.entries(allItems).filter(([key]) =>
     key.startsWith("tab-timer::")
