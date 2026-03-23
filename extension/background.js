@@ -130,18 +130,9 @@ chrome.alarms.onAlarm.addListener(handleAlarm);
 async function initTimers() {
   await loadTrackingState(); // restore tracking state after SW restart / wake
 
-  // If we have a stale startTime from before sleep/restart, send the accumulated
-  // time to backend now so it's not lost, then reset startTime to now.
+  // If startTime is from before a sleep/restart, reset it to now.
+  // We don't want to count time the user wasn't actively browsing.
   if (activeDomain && startTime) {
-    const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
-    if (elapsedSeconds > 1) {
-      fetch("http://localhost:8000/track.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: activeDomain, duration_seconds: elapsedSeconds }),
-      }).catch((err) => console.error("Error flushing stale tracking on init:", err));
-    }
-    // Reset startTime to now so we don't double-count
     startTime = Date.now();
     await saveTrackingState();
   }
